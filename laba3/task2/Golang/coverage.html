@@ -1,0 +1,962 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>t1: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">t1/hashaddress.go (91.9%)</option>
+				
+				<option value="file1">t1/hashchain.go (93.1%)</option>
+				
+				<option value="file2">t1/main.go (0.0%)</option>
+				
+				<option value="file3">t1/massiv.go (100.0%)</option>
+				
+				<option value="file4">t1/onelinkedlist.go (96.9%)</option>
+				
+				<option value="file5">t1/queue.go (100.0%)</option>
+				
+				<option value="file6">t1/stack.go (100.0%)</option>
+				
+				<option value="file7">t1/structures.go (25.0%)</option>
+				
+				<option value="file8">t1/twolinkedlist.go (90.3%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+import "fmt"
+
+type NodeHashA struct {
+        key       string
+        data      int
+        isDeleted bool
+        isEmpty   bool
+}
+
+func (this *NodeHashA) getKey() string     <span class="cov8" title="1">{ return this.key }</span>
+func (this *NodeHashA) getData() int       <span class="cov8" title="1">{ return this.data }</span>
+func (this *NodeHashA) getIsDeleted() bool <span class="cov8" title="1">{ return this.isDeleted }</span>
+func (this *NodeHashA) getIsEmpty() bool   <span class="cov8" title="1">{ return this.isEmpty }</span>
+
+type HashA struct {
+        cell     []NodeHashA
+        capacity int
+        size     int
+}
+
+func NewHashA() *HashA <span class="cov8" title="1">{
+        h := &amp;HashA{capacity: 10, size: 0}
+        h.cell = make([]NodeHashA, h.capacity)
+        for i := range h.cell </span><span class="cov8" title="1">{
+                h.cell[i].isEmpty = true
+        }</span>
+        <span class="cov8" title="1">return h</span>
+}
+
+func (this *HashA) rehash() <span class="cov8" title="1">{
+        oldCapacity := this.capacity
+        oldTable := this.cell
+        this.capacity = oldCapacity * 2
+        this.cell = make([]NodeHashA, this.capacity)
+        for i := range this.cell </span><span class="cov8" title="1">{
+                this.cell[i].isEmpty = true
+        }</span>
+        <span class="cov8" title="1">this.size = 0
+        for i := 0; i &lt; oldCapacity; i++ </span><span class="cov8" title="1">{
+                if !oldTable[i].isEmpty &amp;&amp; !oldTable[i].isDeleted </span><span class="cov8" title="1">{
+                        this.addElementA(oldTable[i].key, oldTable[i].data)
+                }</span>
+        }
+}
+
+func (this *HashA) hashFunc(key string, capacity int) int <span class="cov8" title="1">{
+        hash := 0
+        for _, c := range key </span><span class="cov8" title="1">{
+                hash = (hash*37 + int(c)) % capacity
+        }</span>
+        <span class="cov8" title="1">return hash % capacity</span>
+}
+
+func (this *HashA) addElementA(key string, data int) <span class="cov8" title="1">{
+        if float64(this.size) &gt;= float64(this.capacity)*0.75 </span><span class="cov8" title="1">{
+                fmt.Print("Происходит рехэширование! Старый размер: ", this.capacity)
+                this.rehash()
+                fmt.Println(", новый размер: ", this.capacity)
+        }</span>
+        <span class="cov8" title="1">index := this.hashFunc(key, this.capacity)
+        orig := index
+        i := 0
+        for !this.cell[index].isEmpty &amp;&amp; !this.cell[index].isDeleted </span><span class="cov8" title="1">{
+                if this.cell[index].key == key </span><span class="cov8" title="1">{
+                        this.cell[index].data = data
+                        return
+                }</span>
+                <span class="cov8" title="1">i++
+                index = (orig + i) % this.capacity
+                if i == this.capacity </span><span class="cov0" title="0">{
+                        fmt.Println("Не найдено место для вставки!")
+                        return
+                }</span>
+        }
+        <span class="cov8" title="1">this.cell[index].key = key
+        this.cell[index].data = data
+        this.cell[index].isDeleted = false
+        this.cell[index].isEmpty = false
+        this.size++</span>
+}
+
+func (this *HashA) findElementA(key string) int <span class="cov8" title="1">{
+        index := this.hashFunc(key, this.capacity)
+        i := 0
+        orig := index
+        for i &lt; this.capacity </span><span class="cov8" title="1">{
+                if this.cell[index].isEmpty &amp;&amp; !this.cell[index].isDeleted </span><span class="cov8" title="1">{
+                        return -1
+                }</span>
+                <span class="cov8" title="1">if !this.cell[index].isEmpty &amp;&amp; !this.cell[index].isDeleted </span><span class="cov8" title="1">{
+                        if this.cell[index].key == key </span><span class="cov8" title="1">{
+                                return this.cell[index].data
+                        }</span>
+                }
+                <span class="cov8" title="1">i++
+                index = (orig + i) % this.capacity</span>
+        }
+        <span class="cov0" title="0">return -1</span>
+}
+
+func (this *HashA) deleteElementA(key string) <span class="cov8" title="1">{
+        index := this.hashFunc(key, this.capacity)
+        i := 0
+        orig := index
+        for i &lt; this.capacity </span><span class="cov8" title="1">{
+                if this.cell[index].isEmpty &amp;&amp; !this.cell[index].isDeleted </span><span class="cov8" title="1">{
+                        fmt.Println("Элемент '", key, "' не найден!")
+                        return
+                }</span>
+                <span class="cov8" title="1">if !this.cell[index].isEmpty &amp;&amp; !this.cell[index].isDeleted </span><span class="cov8" title="1">{
+                        if this.cell[index].key == key </span><span class="cov8" title="1">{
+                                this.cell[index].isDeleted = true
+                                this.size--
+                                fmt.Println("Элемент '", key, "' успешно удален!")
+                                return
+                        }</span>
+                }
+                <span class="cov0" title="0">i++
+                index = (orig + i) % this.capacity</span>
+        }
+        <span class="cov0" title="0">fmt.Println("Элемент '", key, "' не найден!")</span>
+}
+
+func (this *HashA) printHashTableA() <span class="cov8" title="1">{
+        fmt.Printf("Хэш-таблица с открытой адресацией (size: %d, capacity: %d):\n", this.size, this.capacity)
+        for i := 0; i &lt; this.capacity; i++ </span><span class="cov8" title="1">{
+                fmt.Print("Ячейка ", i, ": ")
+                if this.cell[i].isEmpty </span><span class="cov8" title="1">{
+                        if this.cell[i].isDeleted </span><span class="cov0" title="0">{
+                                fmt.Print("[DELETED]")
+                        }</span> else<span class="cov8" title="1"> {
+                                fmt.Print("empty")
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        fmt.Printf("[%s -&gt; %d]", this.cell[i].key, this.cell[i].data)
+                        if this.cell[i].isDeleted </span><span class="cov8" title="1">{
+                                fmt.Print(" (deleted)")
+                        }</span>
+                }
+                <span class="cov8" title="1">fmt.Println()</span>
+        }
+}
+
+func (this *HashA) getCapacity() int         <span class="cov8" title="1">{ return this.capacity }</span>
+func (this *HashA) getSize() int             <span class="cov8" title="1">{ return this.size }</span>
+func (this *HashA) getCells() []NodeHashA    <span class="cov8" title="1">{ return this.cell }</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+import "fmt"
+
+type NodeHash struct {
+        key  string
+        data int
+        next *NodeHash
+        prev *NodeHash
+}
+
+func NewNodeHash(k string, d int) *NodeHash <span class="cov8" title="1">{
+        return &amp;NodeHash{key: k, data: d, next: nil, prev: nil}
+}</span>
+
+func (this *NodeHash) getKey() string     <span class="cov8" title="1">{ return this.key }</span>
+func (this *NodeHash) getData() int       <span class="cov8" title="1">{ return this.data }</span>
+func (this *NodeHash) getNext() *NodeHash <span class="cov8" title="1">{ return this.next }</span>
+
+type Hash struct {
+        cell     []*NodeHash
+        capacity int
+        size     int
+}
+
+func NewHash() *Hash <span class="cov8" title="1">{
+        return &amp;Hash{
+                cell:     make([]*NodeHash, 10),
+                capacity: 10,
+                size:     0,
+        }
+}</span>
+
+func (this *Hash) hashFunc(key string, capacity int) int <span class="cov8" title="1">{
+        hash := 0
+        for _, c := range key </span><span class="cov8" title="1">{
+                hash = (hash*37 + int(c)) % capacity
+        }</span>
+        <span class="cov8" title="1">return hash % capacity</span>
+}
+
+func (this *Hash) addElement(key string, data int) <span class="cov8" title="1">{
+        index := this.hashFunc(key, this.capacity)
+        begin := this.cell[index]
+        current := begin
+        for current != nil </span><span class="cov8" title="1">{
+                if current.key == key </span><span class="cov8" title="1">{
+                        current.data = data
+                        return
+                }</span>
+                <span class="cov8" title="1">current = current.next</span>
+        }
+        <span class="cov8" title="1">node := NewNodeHash(key, data)
+        node.next = begin
+        node.prev = nil
+        if this.cell[index] != nil </span><span class="cov8" title="1">{
+                this.cell[index].prev = node
+        }</span>
+        <span class="cov8" title="1">this.cell[index] = node
+        this.size++</span>
+}
+
+func (this *Hash) findElement(key string) int <span class="cov8" title="1">{
+        index := this.hashFunc(key, this.capacity)
+        current := this.cell[index]
+        for current != nil </span><span class="cov8" title="1">{
+                if current.key == key </span><span class="cov8" title="1">{
+                        return current.data
+                }</span>
+                <span class="cov8" title="1">current = current.next</span>
+        }
+        <span class="cov8" title="1">return -1</span>
+}
+
+func (this *Hash) deleteElement(key string) <span class="cov8" title="1">{
+        index := this.hashFunc(key, this.capacity)
+        delVal := this.cell[index]
+        for delVal != nil </span><span class="cov8" title="1">{
+                if delVal.key == key </span><span class="cov8" title="1">{
+                        if delVal.prev != nil </span><span class="cov8" title="1">{
+                                delVal.prev.next = delVal.next
+                        }</span> else<span class="cov8" title="1"> {
+                                this.cell[index] = delVal.next
+                        }</span>
+                        <span class="cov8" title="1">if delVal.next != nil </span><span class="cov0" title="0">{
+                                delVal.next.prev = delVal.prev
+                        }</span>
+                        <span class="cov8" title="1">this.size--
+                        return</span>
+                }
+                <span class="cov8" title="1">delVal = delVal.next</span>
+        }
+}
+
+func (this *Hash) printHashTable() <span class="cov8" title="1">{
+        fmt.Printf("Хэш-таблица (size: %d, capacity: %d):\n", this.size, this.capacity)
+        for i := 0; i &lt; this.capacity; i++ </span><span class="cov8" title="1">{
+                fmt.Printf("Ячейка %d: ", i)
+                current := this.cell[i]
+                if current == nil </span><span class="cov8" title="1">{
+                        fmt.Print("empty")
+                }</span> else<span class="cov8" title="1"> {
+                        for current != nil </span><span class="cov8" title="1">{
+                                fmt.Printf("[%s -&gt; %d]", current.key, current.data)
+                                if current.next != nil </span><span class="cov0" title="0">{
+                                        fmt.Print(" -&gt; ")
+                                }</span>
+                                <span class="cov8" title="1">current = current.next</span>
+                        }
+                }
+                <span class="cov8" title="1">fmt.Println()</span>
+        }
+}
+
+func (this *Hash) getCapacity() int       <span class="cov0" title="0">{ return this.capacity }</span>
+func (this *Hash) getSize() int           <span class="cov8" title="1">{ return this.size }</span>
+func (this *Hash) getCells() []*NodeHash <span class="cov0" title="0">{ return this.cell }</pre>
+		
+		<pre class="file" id="file2" style="display: none">package main
+
+func main() {<span class="cov0" title="0">
+        
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package main
+import "fmt"
+
+type Array struct {
+        data     []string
+        capacity int
+        size     int
+}
+
+func NewArray() *Array <span class="cov8" title="1">{
+        return &amp;Array{
+                data:     make([]string, 10),
+                capacity: 10,
+                size:     0,
+        }
+}</span>
+
+func (this *Array) addBackArray(val string) <span class="cov8" title="1">{
+        if this.size &gt;= this.capacity </span><span class="cov8" title="1">{
+                this.capacity = this.capacity * 2
+                newData := make([]string, this.capacity)
+                copy(newData, this.data)
+                this.data = newData
+        }</span>
+        <span class="cov8" title="1">this.data[this.size] = val
+        this.size++</span>
+}
+
+func (this *Array) addElemIndArray(ind int, val string) <span class="cov8" title="1">{
+        if 0 &gt; ind || ind &gt; this.size </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">if this.size &gt;= this.capacity </span><span class="cov8" title="1">{
+                this.capacity = this.capacity * 2
+                newData := make([]string, this.capacity)
+                copy(newData, this.data)
+                this.data = newData
+        }</span>
+        <span class="cov8" title="1">for i := this.size; i &gt; ind; i-- </span><span class="cov8" title="1">{
+                this.data[i] = this.data[i-1]
+        }</span>
+        <span class="cov8" title="1">this.data[ind] = val
+        this.size++</span>
+}
+
+func (this *Array) getElemIndArray(ind int) string <span class="cov8" title="1">{
+        if 0 &gt; ind || ind &gt;= this.size </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+        <span class="cov8" title="1">return this.data[ind]</span>
+}
+
+func (this *Array) remElemIndArray(ind int) <span class="cov8" title="1">{
+        if 0 &gt; ind || ind &gt;= this.size </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">for i := ind + 1; i &lt; this.size; i++ </span><span class="cov8" title="1">{
+                this.data[i-1] = this.data[i]
+        }</span>
+        <span class="cov8" title="1">this.size--</span>
+}
+
+func (this *Array) changeElemIndArray(ind int, val string) <span class="cov8" title="1">{
+        if 0 &gt; ind || ind &gt;= this.size </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">this.data[ind] = val</span>
+}
+
+func (this *Array) getSizeArray() int <span class="cov8" title="1">{
+        return this.size
+}</span>
+
+func (this *Array) printArray() <span class="cov8" title="1">{
+        for i := 0; i &lt; this.size; i++ </span><span class="cov8" title="1">{
+                fmt.Print(this.data[i], " ")
+        }</span>
+        <span class="cov8" title="1">fmt.Println()</span>
+}
+
+func (this *Array) getSize() int <span class="cov8" title="1">{ return this.size }</pre>
+		
+		<pre class="file" id="file4" style="display: none">package main
+import "fmt"
+
+type OLList struct {
+        head *Node
+        tail *Node
+}
+
+func (this *OLList) createNodeOL(data string) *Node <span class="cov8" title="1">{
+        return createNode(data)
+}</span>
+
+func (this *OLList) addBackOL(data string) <span class="cov8" title="1">{
+        node := this.createNodeOL(data)
+        if this.head == nil </span><span class="cov8" title="1">{
+                this.head = node
+                this.tail = node
+                return
+        }</span>
+        <span class="cov8" title="1">this.tail.next = node
+        this.tail = node</span>
+}
+
+func (this *OLList) remFrontOL() <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">this.head = this.head.next
+        if this.head == nil </span><span class="cov8" title="1">{
+                this.tail = nil
+        }</span>
+}
+
+func (this *OLList) remBackOL() <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">if this.head == this.tail </span><span class="cov8" title="1">{
+                this.remFrontOL()
+                return
+        }</span>
+        <span class="cov8" title="1">curr := this.head
+        for curr.next != this.tail </span><span class="cov8" title="1">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">this.tail = curr
+        this.tail.next = nil</span>
+}
+
+func (this *OLList) printListOL() <span class="cov8" title="1">{
+        curr := this.head
+        for curr != nil </span><span class="cov8" title="1">{
+                fmt.Print(curr.data, " ")
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">fmt.Println()</span>
+}
+
+func (this *OLList) addFrontOL(data string) <span class="cov8" title="1">{
+        node := this.createNodeOL(data)
+        if this.head == nil </span><span class="cov8" title="1">{
+                this.head = node
+                this.tail = node
+                return
+        }</span>
+        <span class="cov8" title="1">node.next = this.head
+        this.head = node</span>
+}
+
+func (this *OLList) insertAfterIndOL(index int, data string) <span class="cov8" title="1">{
+        if index &lt; 0 </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">curr := this.head
+        i := 0
+        for ; i != index &amp;&amp; curr != nil; i++ </span><span class="cov8" title="1">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">node := this.createNodeOL(data)
+        node.next = curr.next
+        curr.next = node
+        if curr == this.tail </span><span class="cov8" title="1">{
+                this.tail = node
+        }</span>
+}
+
+func (this *OLList) insertBeforeIndOL(index int, data string) <span class="cov8" title="1">{
+        if index == 0 </span><span class="cov8" title="1">{
+                this.addFrontOL(data)
+                return
+        }</span>
+        <span class="cov8" title="1">if index &lt; 0 </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">curr := this.head
+        i := 0
+        for ; i != index-1 &amp;&amp; curr != nil; i++ </span><span class="cov8" title="1">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">node := this.createNodeOL(data)
+        node.next = curr.next
+        curr.next = node
+        if curr == this.tail </span><span class="cov0" title="0">{
+                this.tail = node
+        }</span>
+}
+
+func (this *OLList) remValOL(val string) <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">if this.head.data == val </span><span class="cov8" title="1">{
+                this.remFrontOL()
+                return
+        }</span>
+        <span class="cov8" title="1">curr := this.head
+        var prev *Node = nil
+        for curr != nil &amp;&amp; curr.data != val </span><span class="cov8" title="1">{
+                prev = curr
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">prev.next = curr.next
+        if curr == this.tail </span><span class="cov8" title="1">{
+                this.tail = prev
+        }</span>
+}
+
+func (this *OLList) findValOL(val string) int <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{ return -1 }</span>
+        <span class="cov8" title="1">curr := this.head
+        ind := 0
+        for curr != nil &amp;&amp; curr.data != val </span><span class="cov8" title="1">{
+                curr = curr.next
+                ind++
+        }</span>
+        <span class="cov8" title="1">if curr == nil </span><span class="cov8" title="1">{ return -1 }</span>
+        <span class="cov8" title="1">return ind</span>
+}
+
+func (this *OLList) deleteBeforeIndOL(index int) <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{
+                fmt.Println("Список пуст.")
+                return
+        }</span>
+        <span class="cov8" title="1">if index == 1 </span><span class="cov8" title="1">{
+                this.remFrontOL()
+                return
+        }</span>
+        <span class="cov8" title="1">if index &lt;= 0 </span><span class="cov8" title="1">{
+                fmt.Println("Неверный индекс.")
+                return
+        }</span>
+        <span class="cov8" title="1">curr := this.head
+        i := 0
+        for ; i != index-2 &amp;&amp; curr != nil; i++ </span><span class="cov8" title="1">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil || curr == this.tail || curr.next == nil </span><span class="cov8" title="1">{
+                fmt.Println("Неверный индекс.")
+                return
+        }</span>
+        <span class="cov8" title="1">node := curr.next
+        curr.next = node.next</span>
+}
+
+func (this *OLList) deleteAfterIndOL(index int) <span class="cov8" title="1">{
+        if this.head == nil || this.head == this.tail </span><span class="cov8" title="1">{
+                fmt.Println("Удаление невозможно.")
+                return
+        }</span>
+        <span class="cov8" title="1">if index &lt; 0 </span><span class="cov0" title="0">{
+                fmt.Println("Неверный индекс.")
+                return
+        }</span>
+        <span class="cov8" title="1">curr := this.head
+        i := 0
+        for ; i != index &amp;&amp; curr != nil; i++ </span><span class="cov8" title="1">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil || curr == this.tail </span><span class="cov8" title="1">{
+                fmt.Println("Неверный индекс.")
+                return
+        }</span>
+        <span class="cov8" title="1">if curr.next == this.tail </span><span class="cov8" title="1">{
+                this.remBackOL()
+                return
+        }</span>
+        <span class="cov8" title="1">node := curr.next
+        curr.next = node.next
+        if node == this.tail </span><span class="cov0" title="0">{
+                this.tail = curr
+        }</span>
+}
+
+func (this *OLList) getHead() *Node <span class="cov8" title="1">{ return this.head }</span>
+func (this *OLList) getTail() *Node <span class="cov8" title="1">{ return this.tail }</pre>
+		
+		<pre class="file" id="file5" style="display: none">package main
+import "fmt"
+
+type Queue struct {
+        head *Node
+        tail *Node
+}
+
+func (this *Queue) createNodeQueue(data string) *Node <span class="cov8" title="1">{
+        return createNode(data)
+}</span>
+
+func (this *Queue) remFrontQueue() <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        // temp := this.head
+        <span class="cov8" title="1">this.head = this.head.next
+        
+        if this.head == nil </span><span class="cov8" title="1">{
+                this.tail = nil
+        }</span>
+}
+
+func (this *Queue) addBackQueue(data string) <span class="cov8" title="1">{
+        node := this.createNodeQueue(data)
+        if this.head == nil </span><span class="cov8" title="1">{
+                this.head = node
+                this.tail = node
+                return
+        }</span>
+        <span class="cov8" title="1">this.tail.next = node
+        this.tail = node</span>
+}
+
+func (this *Queue) printQueue() <span class="cov8" title="1">{
+        curr := this.head
+        for curr != nil </span><span class="cov8" title="1">{
+                fmt.Print(curr.data, " ")
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">fmt.Println()</span>
+}
+
+func (this *Queue) getHead() *Node <span class="cov8" title="1">{ return this.head }</span>
+func (this *Queue) getTail() *Node <span class="cov8" title="1">{ return this.tail }</pre>
+		
+		<pre class="file" id="file6" style="display: none">package main
+import "fmt"
+
+type Stack struct {
+        top *Node
+}
+
+func (this *Stack) createNodeSt(data string) *Node <span class="cov8" title="1">{
+        return createNode(data)
+}</span>
+
+func (this *Stack) popStack() <span class="cov8" title="1">{
+        if this.top == nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">this.top = this.top.next</span>
+}
+
+func (this *Stack) printStack() <span class="cov8" title="1">{
+        curr := this.top
+        for curr != nil </span><span class="cov8" title="1">{
+                fmt.Print(curr.data, " ")
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">fmt.Println()</span>
+}
+
+func (this *Stack) pushStack(data string) <span class="cov8" title="1">{
+        node := this.createNodeSt(data)
+        if this.top == nil </span><span class="cov8" title="1">{
+                this.top = node
+                return
+        }</span>
+        <span class="cov8" title="1">node.next = this.top
+        this.top = node</span>
+}
+
+func (this *Stack) getTop() *Node <span class="cov8" title="1">{ return this.top }</pre>
+		
+		<pre class="file" id="file7" style="display: none">package main
+
+type Node struct {
+        data string
+        next *Node
+        prev *Node
+}
+
+func createNode(data string) *Node <span class="cov8" title="1">{
+        return &amp;Node{data: data, next: nil, prev: nil}
+}</span>
+
+func (this *Node) getData() string <span class="cov0" title="0">{ return this.data }</span>
+func (this *Node) getNext() *Node  <span class="cov0" title="0">{ return this.next }</span>
+func (this *Node) getPrev() *Node  <span class="cov0" title="0">{ return this.prev }</pre>
+		
+		<pre class="file" id="file8" style="display: none">package main
+import "fmt"
+
+type TLList struct {
+        head *Node
+        tail *Node
+}
+
+func (this *TLList) createNodeTL(data string) *Node <span class="cov8" title="1">{
+        return createNode(data)
+}</span>
+
+func (this *TLList) addBackTL(data string) <span class="cov8" title="1">{
+        node := this.createNodeTL(data)
+        if this.head == nil </span><span class="cov8" title="1">{
+                this.head = node
+                this.tail = node
+                return
+        }</span>
+        <span class="cov8" title="1">node.prev = this.tail
+        this.tail.next = node
+        this.tail = node</span>
+}
+
+func (this *TLList) remFrontTL() <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">this.head = this.head.next
+        if this.head == nil </span><span class="cov8" title="1">{
+                this.tail = nil
+        }</span> else<span class="cov8" title="1"> {
+                this.head.prev = nil
+        }</span>
+}
+
+func (this *TLList) remBackTL() <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">if this.head == this.tail </span><span class="cov8" title="1">{
+                this.remFrontTL()
+                return
+        }</span>
+        <span class="cov8" title="1">this.tail = this.tail.prev
+        this.tail.next = nil</span>
+}
+
+func (this *TLList) printListTL() <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">curr := this.head
+        for curr != nil </span><span class="cov8" title="1">{
+                fmt.Print(curr.data, " ")
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">fmt.Println()</span>
+}
+
+func (this *TLList) addFrontTL(data string) <span class="cov8" title="1">{
+        node := this.createNodeTL(data)
+        if this.head == nil </span><span class="cov8" title="1">{
+                this.head = node
+                this.tail = node
+                return
+        }</span>
+        <span class="cov8" title="1">node.next = this.head
+        this.head.prev = node
+        this.head = node</span>
+}
+
+func (this *TLList) insertAfterIndTL(index int, data string) <span class="cov8" title="1">{
+        if index &lt; 0 || this.head == nil </span><span class="cov0" title="0">{ return }</span>
+        <span class="cov8" title="1">curr := this.head
+        i := 0
+        for ; i != index &amp;&amp; curr != nil; i++ </span><span class="cov8" title="1">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil </span><span class="cov0" title="0">{ return }</span>
+        <span class="cov8" title="1">node := this.createNodeTL(data)
+        node.next = curr.next
+        node.prev = curr
+        if curr.next != nil </span><span class="cov0" title="0">{
+                curr.next.prev = node
+        }</span>
+        <span class="cov8" title="1">curr.next = node
+        if curr == this.tail </span><span class="cov8" title="1">{
+                this.tail = node
+        }</span>
+}
+
+func (this *TLList) insertBeforeIndTL(index int, data string) <span class="cov8" title="1">{
+        if index == 0 </span><span class="cov8" title="1">{
+                this.addFrontTL(data)
+                return
+        }</span>
+        <span class="cov8" title="1">if index &lt; 0 || this.head == nil </span><span class="cov0" title="0">{ return }</span>
+        <span class="cov8" title="1">curr := this.head
+        i := 0
+        for ; i != index &amp;&amp; curr != nil; i++ </span><span class="cov8" title="1">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil </span><span class="cov0" title="0">{ return }</span>
+        <span class="cov8" title="1">node := this.createNodeTL(data)
+        node.prev = curr.prev
+        node.next = curr
+        curr.prev.next = node
+        curr.prev = node</span>
+}
+
+func (this *TLList) remValTL(val string) <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{ return }</span>
+        <span class="cov8" title="1">if this.head.data == val </span><span class="cov8" title="1">{
+                this.remFrontTL()
+                return
+        }</span>
+        <span class="cov8" title="1">curr := this.head
+        for curr != nil &amp;&amp; curr.data != val </span><span class="cov8" title="1">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil </span><span class="cov0" title="0">{ return }</span>
+        <span class="cov8" title="1">curr.prev.next = curr.next
+        if curr == this.tail </span><span class="cov8" title="1">{
+                this.tail = curr.prev
+        }</span> else<span class="cov8" title="1"> {
+                curr.next.prev = curr.prev
+        }</span>
+}
+
+func (this *TLList) findValTL(val string) int <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov0" title="0">{ return -1 }</span>
+        <span class="cov8" title="1">curr := this.head
+        ind := 0
+        for curr != nil &amp;&amp; curr.data != val </span><span class="cov8" title="1">{
+                curr = curr.next
+                ind++
+        }</span>
+        <span class="cov8" title="1">if curr == nil </span><span class="cov8" title="1">{ return -1 }</span>
+        <span class="cov8" title="1">return ind</span>
+}
+
+func (this *TLList) deleteBeforeIndTL(index int) <span class="cov8" title="1">{
+        if this.head == nil </span><span class="cov8" title="1">{
+                fmt.Println("Список пуст.")
+                return
+        }</span>
+        <span class="cov8" title="1">if index == 1 </span><span class="cov8" title="1">{
+                this.remFrontTL()
+                return
+        }</span>
+        <span class="cov8" title="1">if index &lt;= 0 </span><span class="cov8" title="1">{
+                fmt.Println("Неверный индекс.")
+                return
+        }</span>
+        <span class="cov8" title="1">curr := this.head
+        i := 0
+        for ; i != index &amp;&amp; curr != nil; i++ </span><span class="cov8" title="1">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil || curr.prev == nil </span><span class="cov0" title="0">{
+                fmt.Println("Неверный индекс.")
+                return
+        }</span>
+        <span class="cov8" title="1">node := curr.prev
+        curr.prev = node.prev
+        if node.prev != nil </span><span class="cov8" title="1">{
+                node.prev.next = curr
+        }</span> else<span class="cov0" title="0"> {
+                this.head = curr
+        }</span>
+}
+
+func (this *TLList) deleteAfterIndTL(index int) <span class="cov8" title="1">{
+        if this.head == nil || this.head == this.tail </span><span class="cov8" title="1">{
+                fmt.Println("Удаление невозможно.")
+                return
+        }</span>
+        <span class="cov8" title="1">if index &lt; 0 </span><span class="cov8" title="1">{
+                fmt.Println("Неверный индекс.")
+                return
+        }</span>
+        <span class="cov8" title="1">curr := this.head
+        i := 0
+        for ; i != index &amp;&amp; curr != nil; i++ </span><span class="cov0" title="0">{
+                curr = curr.next
+        }</span>
+        <span class="cov8" title="1">if curr == nil || curr.next == nil </span><span class="cov0" title="0">{
+                fmt.Println("Неверный индекс.")
+                return
+        }</span>
+        <span class="cov8" title="1">node := curr.next
+        curr.next = node.next
+        if node.next != nil </span><span class="cov8" title="1">{
+                node.next.prev = curr
+        }</span> else<span class="cov8" title="1"> {
+                this.tail = curr
+        }</span>
+}
+
+func (this *TLList) getHead() *Node <span class="cov8" title="1">{ return this.head }</span>
+func (this *TLList) getTail() *Node <span class="cov8" title="1">{ return this.tail }</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
